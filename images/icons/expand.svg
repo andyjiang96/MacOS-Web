@@ -1,0 +1,15 @@
+<svg width="220" height="226" viewBox="0 0 220 226" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M31 73
+       L31 185
+       L144 185
+       Z"
+    fill="#006B00"/>
+
+  <path
+    d="M187 31
+       L74 31
+       L187 145
+       Z"
+    fill="#006B00"/>
+</svg>

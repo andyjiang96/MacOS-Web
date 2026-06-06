@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>System Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+	<style>
+        @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        50% {
+            transform: rotate(360deg);
+        }
+        100% {
+            transform: rotate(720deg);
+        }
+        }
+
+        body.cursor-default *, body * {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/default.svg), default;
+        }
+
+        body.cursor-copy {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/copy.svg), default;
+        }
+
+        body.cursor-pointer {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+        }
+
+        body.cursor-none {
+            cursor: none;
+        }
+
+		:root {
+			--bg: #f5f5f7;
+			--sidebar: #ececec;
+			--border: #dedede;
+			--text: #1d1d1f;
+			--subtext: #6e6e73;
+			--accent: #0a84ff;
+		}
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+		img {
+			-webkit-user-drag: none;
+			user-drag: none;
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
+		* {
+			box-sizing: border-box;
+			font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+			"Helvetica Neue", Arial, sans-serif;
+		}
+
+		html,
+		body {
+			margin: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			user-select: none;
+		}
+
+		.app {
+			display: flex;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		.sidebar {
+			width: 280px;
+			background-color: transparent;
+			border-right: 1px solid var(--border);
+			padding: 14px 12px;
+			overflow-y: auto;
+		}
+
+		.sidebar::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		.sidebar::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.sidebar::-webkit-scrollbar-thumb {
+			background-color: #aaa;
+			border-radius: 8px;
+		}
+
+		.sidebar::-webkit-scrollbar-thumb:hover {
+			background-color: #999;
+		}
+
+		.apple-id {
+			display: flex;
+			gap: 12px;
+			padding: 12px;
+			margin-bottom: 16px;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+		}
+
+		.avatar {
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+		}
+
+		.apple-id strong {
+			font-size: 14px;
+		}
+
+		.apple-id span {
+			font-size: 12px;
+			color: var(--subtext);
+		}
+
+		.item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 12px;
+			border-radius: 8px;
+			height: 35px;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+			color: var(--text);
+			margin-bottom: 4px;
+		}
+
+		.item:hover {
+			background: rgba(0, 0, 0, 0.05);
+		}
+
+		.item.active {
+			background: #2494f6;
+			color: #fff;
+		}
+
+		.icon {
+			width: 23px;
+			height: 23px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.icon img {
+			height: 18px;
+			width: 18px;
+		}
+
+		.content {
+			flex: 1;
+			padding: 32px;
+			overflow-y: auto;
+            background: #fff;
+		}
+
+		.content h1 {
+			font-size: 28px;
+			margin-bottom: 24px;
+		}
+
+		.card {
+			background: #fbfbfb;
+			border-radius: 12px;
+			padding: 20px;
+			margin-bottom: 20px;
+			border: 1px solid var(--border);
+		}
+
+        .card hr {
+            width: 95%;
+            color: #666;
+        }
+
+		.row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 14px 0;
+			border-bottom: 1px solid var(--border);
+		}
+
+        .rownoflex {
+			justify-content: space-between;
+			align-items: center;
+			padding: 14px 0;
+			border-bottom: 1px solid var(--border);
+        }
+
+		.rownoflex:last-child {
+			border-bottom: none;
+		}
+
+		.rownoflex span {
+			color: var(--subtext);
+			font-size: 13px;
+		}
+
+		.row:last-child {
+			border-bottom: none;
+		}
+
+		.row span {
+			color: var(--subtext);
+			font-size: 13px;
+		}
+
+		.toggle {
+			width: 44px;
+			height: 24px;
+			background: #ccc;
+			border-radius: 999px;
+			position: relative;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+		}
+
+		.toggle::after {
+			content: "";
+			width: 20px;
+			height: 20px;
+			background: #fff;
+			border-radius: 50%;
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			transition: 0.2s;
+		}
+
+		.toggle.on {
+			background: var(--accent);
+		}
+
+		.toggle.on::after {
+			left: 22px;
+		}
+
+        .search-box {
+            position: relative;
+            width: 95%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/default.svg), default;
+        }
+
+        .searchinput {
+            width: 100%;
+            box-sizing: border-box;
+            height: 35px;
+            border-radius: 18px;
+            border: 2px solid transparent;
+            background-color: #eee;
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/default.svg), default;
+			padding-left: 30px;
+        }
+
+        .searchinput:hover {
+            background-color: #dcdcdc;
+        }
+
+		.searchinput::selection {
+			background-color: #545e77;
+			color: white;
+		}
+
+		.searchinput:focus {
+            outline: none;
+			border-color: #545e77;
+			background-color: #fff;
+			cursor: text;
+		}
+
+		.searchinput:focus::placeholder {
+			color: transparent;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="app">
+		<div class="sidebar">
+&nbsp;&nbsp;<div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" class="searchinput" placeholder="Search" />
+</div>
+
+			<div class="apple-id">
+				<img class="avatar" src="https://i.postimg.cc/9FNTsjVt/Settings.webp">
+      <div>
+        <strong>User</strong><br>
+        <span>iCloud · Sign in to continue</span>
+      </div>
+    </div>
+
+    <div class="item" data-section="wifi" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/wifi.svg">
+    </div>
+      Wi-Fi
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/antenna.radiowaves.left.and.right.svg">
+    </div>
+      Bluetooth
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/network.svg">
+    </div>
+      Network
+    </div>
+    <br>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #f24647;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/bell.badge.fill.svg">
+    </div>
+      Notifications
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #fe1b53;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/speaker.wave.3.fill.svg">
+    </div>
+      Sound
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #5b67dc;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/moon.fill.svg">
+    </div>
+      Focus
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #5b67dc;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/hourglass.svg">
+    </div>
+      Screen Time
+    </div>
+    <br>
+    <div class="item active" data-section="general" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/gear.svg">
+    </div>
+      General
+    </div>
+    <div class="item" data-section="appearance" onclick="select(this)">
+    <div style="background-color: #000000;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/moonphase.last.quarter.inverse.svg">
+    </div>
+      Appearance
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/accessibility.svg">
+    </div>
+      Accessibility
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/magnifyingglass.svg">
+    </div>
+      Focus
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/switch.2.svg">
+    </div>
+      Control Center
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #61ccf6;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/moon.stars.circle.svg">
+    </div>
+      Screensaver
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #61ccf6;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/photo.circle.svg">
+    </div>
+      Wallpaper
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/sun.max.fill.svg">
+    </div>
+      Monitor
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #000000;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/menubar.dock.rectangle.svg">
+    </div>
+      Desktop and Dock
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #000000;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/Siri.svg">
+    </div>
+      Siri & Spotlight
+    </div>
+    <br>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #000000;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/lock.fill.svg">
+    </div>
+      Lock Screen
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/hand.raised.fill.svg">
+    </div>
+      Privacy and Security
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/lock.fill.svg">
+    </div>
+      Login password
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/person.2.fill.svg">
+    </div>
+      Users and Groups
+    </div>
+    <br>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #0083f8;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/at.svg">
+    </div>
+      Internet account
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #ffffff;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/gamecenter.png">
+    </div>
+      Game Center
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #ffffff;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/icloud.png">
+    </div>
+      iCloud
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #000000;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/wallet.png">
+    </div>
+      Wallet and Apple Pay
+    </div>
+    <br>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/keyboard.fill.svg">
+    </div>
+      Keyboard
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/magicmouse.fill.svg">
+    </div>
+      Mouse
+    </div>
+    <div class="item" onclick="select(this)">
+    <div style="background-color: #8f8d92;" class="icon">
+      <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/printer.fill.svg">
+    </div>
+      Printers and scanners
+    </div>
+
+  </div>
+
+  <div class="content">
+
+<!-- appearance -->
+<div class="section" id="appearance">
+    <div class="card">
+      <div class="row">
+          <strong style="position: relative; top: -24px;">Appearance</strong>
+          <img style="height: 70px; width: auto;"
+          src="https://i.postimg.cc/SR8YBL2K/image-removebg-preview-(1).png">
+      </div>
+        <div class="row">
+          <strong style="position: relative; top: -18px;">Accent Color</strong>
+          <img style="position: relative; right: 5px; top: 5px; height: 60px; width: auto;"
+          src="https://i.postimg.cc/cCXG428f/image-removebg-preview-(2).png">
+        </div>
+        <div class="row">
+            <b>Highlight Color</b>
+            <select style="border-color: #ccc; background-color: transparent; border-radius: 8px; height: 30px; width: 100px;">
+                <option>Accent Color</option>
+            </select>
+        </div>
+        <div class="row">
+            <b>Sidebar icon size</b>
+            <select style="border-color: #ccc; background-color: transparent; border-radius: 8px; height: 30px; width: 100px;">
+                <option>Small</option>
+                <option selected>Medium</option>
+                <option>Large</option>
+            </select>
+        </div>
+        <div class="row">
+            <b>Allow wallpaper tinting in windows</b>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="rownoflex">
+            <b>Show scroll bar</b><br>
+            <lable style="position: relative; top: 4px;"><input checked type="radio" name="a"> Automaticly based on mouse or trackpad</lable><br>
+            <lable style="position: relative; top: 4px;"><input type="radio" name="a"> When scrolling</lable><br>
+            <lable style="position: relative; top: 4px;"><input type="radio" name="a"> Always</lable>
+        </div>
+        <div class="rownoflex">
+            <b>Click in the scroll bar to</b><br>
+            <lable style="position: relative; top: 4px;"><input checked type="radio" name="b"> Jump to the next page</lable><br>
+            <lable style="position: relative; top: 4px;"><input type="radio" name="b"> Jump to the spot that's clicked</lable>
+        </div>
+    </div>
+</div>
+
+<!-- wifi -->
+<div class="section" id="wifi">
+    <div class="card">
+        <div class="row">
+            <lable style="display: flex;"><div style="background-color: #0083f8; position: relative; top: -2px;" class="icon">
+                <img src="https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/images/wifi.svg">
+            </div><b>&nbsp;&nbsp;&nbsp;Wi-Fi</b></lable>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="row">
+            <div>
+                <b>LPS-Secure</b><br>
+                <span style="color: #27ce42;">•</span> &nbsp;<span>Connected</span>
+            </div>
+            <div>
+            <i class="fa-solid fa-lock"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-wifi"></i>&nbsp;&nbsp;&nbsp;
+            <button style="border: 1px solid #ccc; background-color: transparent; border-radius: 8px; height: 30px;">
+                &nbsp;Details...&nbsp;
+            </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <b>Known Networks</b>
+        <div class="row">
+            <div>
+                <b>LPS-Secure</b><br>
+            </div>
+            <div>
+            <i class="fa-solid fa-lock"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-wifi"></i>&nbsp;&nbsp;
+            <i style="color: #888;" class="fa-solid fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <b>Other Networks</b>
+        <div class="row">
+            <div>
+                <b>xfinitywifi</b><br>
+            </div>
+            <div>
+            <i class="fa-solid fa-lock"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-wifi"></i>&nbsp;&nbsp;
+            <i style="color: #888;" class="fa-solid fa-plus"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <b>Xfinity Mobile</b><br>
+            </div>
+            <div>
+            <i class="fa-solid fa-lock"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-wifi"></i>&nbsp;&nbsp;
+            <i style="color: #888;" class="fa-solid fa-plus"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <b>iPhone</b><br>
+            </div>
+            <div>
+            <i class="fa-solid fa-lock"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-wifi"></i>&nbsp;&nbsp;
+            <i style="color: #888;" class="fa-solid fa-plus"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- general -->
+<div class="section" id="general">
+    <div class="card">
+        <div class="row">
+            About <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Software Update <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Storage <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Airdrop & Handoff <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Login Items <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+    </div>
+    <div class="card">
+        <div class="row">
+            Language & Regions <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Data & Time <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+    </div>
+        <div class="card">
+        <div class="row">
+            Sharing <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Time Machine <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Transfer or Reset <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+        <div class="row">
+            Startup Disk <i style="color: #888; cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;" class="fa-solid fa-angle-right"></i>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function select(el) {
+  document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+
+  const target = el.dataset.section;
+  if (!target) return;
+
+  document.querySelectorAll('.section').forEach(sec => {
+    sec.classList.remove('active');
+  });
+
+  const section = document.getElementById(target);
+  if (section) section.classList.add('active');
+}
+
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+
+const query = window.location.search.replace('?', '').toLowerCase();
+
+const sectionMap = {
+  general: 'general',
+  appearance: 'appearance',
+  wifi: 'wifi'
+};
+
+const initialSection = sectionMap[query] || 'general';
+
+function activateSection(id) {
+  document.querySelectorAll('.item').forEach(item => {
+    item.classList.toggle('active', item.dataset.section === id);
+  });
+
+  document.querySelectorAll('.section').forEach(sec => {
+    sec.classList.toggle('active', sec.id === id);
+  });
+}
+
+activateSection(initialSection);
+</script>
+
+</body>
+</html>

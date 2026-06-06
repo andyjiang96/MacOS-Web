@@ -1,0 +1,512 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Finder</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+	<style>
+        @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        50% {
+            transform: rotate(360deg);
+        }
+        100% {
+            transform: rotate(720deg);
+        }
+        }
+
+        body.cursor-default *, body * {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/default.svg), default;
+        }
+
+        body.cursor-copy {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/copy.svg), default;
+        }
+
+        body.cursor-pointer {
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+        }
+
+        body.cursor-none {
+            cursor: none;
+        }
+
+		body {
+			margin: 0;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			user-select: none;
+            overflow: hidden;
+		}
+
+		img {
+			-webkit-user-drag: none;
+			user-drag: none;
+			-webkit-user-select: none;
+			user-select: none;
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+		}
+
+		.customMenu {
+			position: absolute;
+			opacity: 0;
+			transform: scale(0.95);
+			transition: opacity 0.15s ease, transform 0.15s ease;
+			pointer-events: none;
+			min-width: 250px;
+            padding: 5px;
+            z-index: 999;
+			background-color: rgba(255, 255, 255, 0.3);
+			backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(200, 200, 200, 0.5);
+            border-radius: 8px;
+            color: #000;
+		}
+
+		.customMenu.show {
+			opacity: 1;
+			transform: scale(1);
+			pointer-events: auto;
+		}
+
+        .customMenu hr {
+            width: 98%;
+            border-color: rgba(200, 200, 200, 0.5);
+            margin-top: 1px;
+            margin-bottom: 1px;
+        }
+
+		.customMenu ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			border-radius: 8px;
+		}
+
+		.customMenu li {
+			padding: 7px 16px;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+			transition: background-color 0.2s ease;
+            border-radius: 8px;
+		}
+
+		.customMenu li:hover {
+            background-color: rgba(21, 121, 244, 0.9);
+            color: #fff;
+		}
+
+		.customMenu small {
+			font-size: 10px;
+			position: relative;
+			top: 2px;
+		}
+
+		.finder {
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		.topbar {
+			display: flex;
+			align-items: center;
+			padding: 0 10px;
+			position: relative;
+			justify-content: space-between;
+			background: linear-gradient(to right, transparent 220px, #efeff5 220px);
+			border-bottom: 1px solid transparent;
+			background-image: linear-gradient(to right, transparent 220px, #ccc 220px),
+			linear-gradient(to right, transparent 220px, #efeff5 220px);
+			background-repeat: no-repeat, no-repeat;
+			background-size: 100% 1px, 100% 100%;
+			background-position: bottom, top;
+		}
+
+		.topbar-left {
+			display: flex;
+			align-items: center;
+            position: relative;
+            top: 15px;
+			gap: 5px;
+		}
+
+		.topbar-right {
+			display: flex;
+			align-items: center;
+            position: relative;
+            bottom: 3px;
+			gap: 10px;
+		}
+
+		.topbar-button {
+			border: none;
+			background: none;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+			font-size: 16px;
+			color: #555;
+			transition: color 0.2s;
+		}
+
+		.topbar-button:hover {
+			color: #000;
+		}
+
+		.path-display {
+			font-size: 14px;
+			color: #333;
+			margin-left: 10px;
+		}
+
+		.content {
+			flex: 1;
+			display: flex;
+			overflow: hidden;
+		}
+
+		.sidebar {
+			width: 220px;
+			background-color: transparent;
+			border-right: 1px solid #ccc;
+			display: flex;
+			flex-direction: column;
+			padding-top: 10px;
+            overflow-y: auto;
+		}
+
+		.sidebar::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		.sidebar::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.sidebar::-webkit-scrollbar-thumb {
+			background-color: #aaa;
+			border-radius: 8px;
+		}
+
+		.sidebar::-webkit-scrollbar-thumb:hover {
+			background-color: #999;
+		}
+
+		.sidebar-section {
+			margin-bottom: 20px;
+		}
+
+		.sidebar-title {
+			font-size: 12px;
+			font-weight: bold;
+			color: #666;
+			padding: 5px 20px;
+			text-transform: uppercase;
+		}
+
+		.sidebar-item {
+			padding: 8px 20px;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+			color: #333;
+			font-size: 14px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			transition: background 0.2s;
+		}
+
+		.sidebar-item:hover {
+			background-color: #d8d8d8;
+		}
+
+		.tag {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			display: inline-block;
+		}
+
+		.file-area {
+			flex: 1;
+			padding: 10px;
+			display: grid;
+			grid-template-columns: repeat(auto-fill, 100px);
+			grid-auto-rows: 150px;
+			column-gap: 10px;
+			row-gap: 0;
+			background-color: #fff;
+		}
+
+		.file-item {
+			width: 100px;
+			height: 100px;
+			text-align: center;
+			font-size: 12px;
+			cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+			border-radius: 5px;
+			padding-top: 10px;
+			transition: background 0.2s;
+		}
+
+		.file-item:hover {
+			background-color: #f0f0f5;
+		}
+
+		.file-icon {
+			width: 40px;
+			height: 40px;
+			display: block;
+			margin: 0 auto 5px auto;
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+		}
+
+		.file-icon img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+            cursor: url(https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/cursors/pointer.svg), default;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="finder">
+		<div class="topbar">
+			<div class="topbar-left">
+				<button class="topbar-button" id="backBtn"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="topbar-button" id="forwardBtn"><i class="fa-solid fa-chevron-right"></i></button>
+      <b class="path-display" id="currentPath">Recents</b>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-button" id="refreshBtn"><i class="fa-solid fa-arrow-rotate-right"></i></button>&nbsp;
+      <button class="topbar-button" id="gridBtn"><i class="fa-solid fa-table-cells-large"></i></button>&nbsp;
+      <button class="topbar-button" id="listBtn"><i class="fa-solid fa-list"></i></button>&nbsp;&nbsp;
+      <button class="topbar-button"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <br>
+        <div class="sidebar-title">Favorites</div>
+        <div class="sidebar-item" data-folder="Recents"><i style="color: #1471d0;" class="fa-regular fa-clock"></i> Recents</div>
+        <div class="sidebar-item" data-folder="Applications"><i style="color: #1471d0;" class="fa-brands fa-app-store"></i> Applications</div>
+        <div class="sidebar-item" data-folder="Desktop"><i style="color: #1471d0;" class="fa-solid fa-computer"></i> Desktop</div>
+        <div class="sidebar-item" data-folder="Documents"><i style="color: #1471d0;" class="fa-regular fa-folder"></i> Documents</div>
+        <div class="sidebar-item" data-folder="Downloads"><i style="color: #1471d0;" class="fa-solid fa-circle-arrow-down"></i> Downloads</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Devices</div>
+        <div class="sidebar-item"><i style="color: #666;" class="fa-regular fa-hard-drive"></i> Disk 1</div>
+        <div class="sidebar-item"><i style="color: #666;" class="fa-regular fa-hard-drive"></i> Disk 2</div>
+        <div class="sidebar-item"><i style="color: #666;" class="fa-regular fa-hard-drive"></i> Disk 3</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Tags</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#ff3b30"></span> Red</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#ff9500"></span> Orange</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#ffcc00"></span> Yellow</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#34c759"></span> Green</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#007aff"></span> Blue</div>
+        <div class="sidebar-item"><span class="tag" style="background-color:#af52de"></span> Purple</div>
+      </div>
+    </div>
+
+    <div class="file-area" id="fileArea"></div>
+  </div>
+</div>
+
+<div id="customMenu" class="customMenu">
+    <ul>
+    <li style="display:flex;align-items:center;">New Folder</li>
+    <hr>
+    <li style="display:flex;align-items:center;">Use Stacks</li>
+    <li style="display:flex;align-items:center;">Clean Up</li>
+    <li style="display:flex;align-items:center;">Clean Up By</li>
+    <hr>
+    <li style="display:flex;align-items:center;">Show View Options</li>
+    </ul>
+</div>
+<div id="itemMenu" class="customMenu">
+    <ul>
+    <li style="display:flex;align-items:center;">Get Info</li>
+    <hr>
+    <li style="display:flex;align-items:center;">Open</li>
+    <li style="display:flex;align-items:center;">Open With</li>
+    <hr>
+    <li style="display:flex;align-items:center;">Compress...</li>
+    <li style="display:flex;align-items:center;">Rename</li>
+    <li style="display:flex;align-items:center;">Clean Up By</li>
+    <li style="display:flex;align-items:center;">Move To Trash</li>
+    <hr>
+    <li style="display:flex;align-items:center;">Show View Options</li>
+    </ul>
+</div>
+<script>
+  const files = {
+    Recents: [
+      { name: "Background Images", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "Applications", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "About MeteorOS.pdf", iconUrl: "https://i.postimg.cc/bN3yV1wn/1667px-PDF-file-icon-svg.png" },
+      { name: "Cover.jpg", iconUrl: "https://i.postimg.cc/15R6yTkz/6fec6b8b-948b-4ef6-bfec-6369ee1b55f2-platform-Qn-A.png" },
+      { name: "Background.mp4", iconUrl: "https://i.postimg.cc/MpQGwmpM/asf-6.png" },
+      { name: "Meteor 32 Config", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "App Store", iconUrl: "https://i.postimg.cc/QMgx9N5t/1024px-App-Store-(i-OS)-svg.png" },
+      { name: "Calculator", iconUrl: "https://i.postimg.cc/cL76sMWV/d7683090881be82d88efa4ac1d3aec74.png" },
+      { name: "Finder", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E8%AE%BF%E8%BE%BE.svg" },
+      { name: "Launchpad", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E5%90%AF%E5%8A%A8%E5%8F%B0.svg" },
+      { name: "Safari", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/Safari%E6%B5%8F%E8%A7%88%E5%99%A8.svg" },
+      { name: "Messages", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E4%BF%A1%E6%81%AF.svg" },
+      { name: "Mail", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%82%AE%E4%BB%B6.svg" },
+      { name: "Map", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E5%9C%B0%E5%9B%BE.svg" },
+      { name: "Photos", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E7%85%A7%E7%89%87.svg" },
+      { name: "Facetime", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/FaceTime%E9%80%9A%E8%AF%9D.svg" },
+      { name: "Calendar", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%97%A5%E5%8E%86.svg" },
+      { name: "Contacts", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%80%9A%E8%AE%AF%E5%BD%95.svg" },
+      { name: "Reminders", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%8F%90%E9%86%92%E4%BA%8B%E9%A1%B9.svg" },
+      { name: "Notepad", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E5%A4%87%E5%BF%98%E5%BD%95.svg" },
+      { name: "Music", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%9F%B3%E4%B9%90.svg" },
+      { name: "Apple TV", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E8%A7%86%E9%A2%91.svg" },
+      { name: "Podcast", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%92%AD%E5%AE%A2.svg" },
+      { name: "News", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/News.svg" }
+    ],
+    Applications: [
+      { name: "Safari", iconUrl: "https://i.postimg.cc/SRryH9P3/2048px-Safari-2020-logo-svg.png" },
+      { name: "Calculator", iconUrl: "https://i.postimg.cc/cL76sMWV/d7683090881be82d88efa4ac1d3aec74.png" },
+      { name: "Messages", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E4%BF%A1%E6%81%AF.svg" },
+      { name: "Mail", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%82%AE%E4%BB%B6.svg" },
+      { name: "Map", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E5%9C%B0%E5%9B%BE.svg" },
+      { name: "Photos", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E7%85%A7%E7%89%87.svg" },
+      { name: "Facetime", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/FaceTime%E9%80%9A%E8%AF%9D.svg" },
+      { name: "Calendar", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%97%A5%E5%8E%86.svg" },
+      { name: "Contacts", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%80%9A%E8%AE%AF%E5%BD%95.svg" },
+      { name: "Reminders", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%8F%90%E9%86%92%E4%BA%8B%E9%A1%B9.svg" },
+      { name: "Notepad", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E5%A4%87%E5%BF%98%E5%BD%95.svg" },
+      { name: "Music", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E9%9F%B3%E4%B9%90.svg" },
+      { name: "Apple TV", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E8%A7%86%E9%A2%91.svg" },
+      { name: "Podcast", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/%E6%92%AD%E5%AE%A2.svg" },
+      { name: "News", iconUrl: "https://cdn.jsdelivr.net/gh/mengobs/Webintosh-Desktop/assets/icons/News.svg" }
+    ],
+    Desktop: [
+      { name: "Background Images", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "Applications", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "About MeteorOS.pdf", iconUrl: "https://i.postimg.cc/bN3yV1wn/1667px-PDF-file-icon-svg.png" }
+    ],
+    Documents: [
+      { name: "About MeteorOS.pdf", iconUrl: "https://i.postimg.cc/bN3yV1wn/1667px-PDF-file-icon-svg.png" },
+      { name: "Settings.txt", iconUrl: "https://i.postimg.cc/7hzTR8dv/vis-icons-image5.png" },
+      { name: "Users.txt", iconUrl: "https://i.postimg.cc/7hzTR8dv/vis-icons-image5.png" },
+      { name: "Passwords.txt", iconUrl: "https://i.postimg.cc/7hzTR8dv/vis-icons-image5.png" }
+    ],
+    Downloads: [
+      { name: "Installer.app", iconUrl: "https://i.postimg.cc/QMgx9N5t/1024px-App-Store-(i-OS)-svg.png" },
+      { name: "Apps", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" },
+      { name: "Dock", iconUrl: "https://i.postimg.cc/pdj50tFf/folder-icon-macos.png" }
+    ],
+  };
+
+  const sidebarItems = document.querySelectorAll('.sidebar-item[data-folder]');
+  const fileArea = document.getElementById('fileArea');
+  const currentPath = document.getElementById('currentPath');
+
+  function renderFiles(folder) {
+    fileArea.innerHTML = '';
+    if (!files[folder]) return;
+    files[folder].forEach(file => {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `
+        <span class="file-icon">
+          <img src="${file.iconUrl}" alt="${file.name}">
+        </span>
+        ${file.name}
+      `;
+      fileArea.appendChild(div);
+    });
+    currentPath.textContent = folder;
+  }
+
+const query = window.location.search.replace('?', '').toLowerCase();
+
+const folderMap = {
+  recents: 'Recents',
+  downloads: 'Downloads',
+  applications: 'Applications',
+  desktop: 'Desktop',
+  documents: 'Documents'
+};
+
+const initialFolder = folderMap[query] || 'Recents';
+renderFiles(initialFolder);
+
+
+  sidebarItems.forEach(item => {
+    item.addEventListener('click', () => {
+      renderFiles(item.dataset.folder);
+    });
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    const folder = currentPath.textContent;
+    renderFiles(folder);
+  });
+
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+
+const customMenu = document.getElementById('customMenu');
+const itemMenu = document.getElementById('itemMenu');
+
+function hideMenus() {
+  customMenu.classList.remove('show');
+  itemMenu.classList.remove('show');
+}
+
+function showMenu(menu, x, y) {
+  hideMenus();
+
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = window.innerWidth - rect.width - 10 + 'px';
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = window.innerHeight - rect.height - 10 + 'px';
+  }
+
+  menu.classList.add('show');
+}
+
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+
+  const fileItem = e.target.closest('.file-item');
+
+  if (fileItem) {
+    showMenu(itemMenu, e.pageX, e.pageY);
+  } else if (e.target.closest('.file-area')) {
+    showMenu(customMenu, e.pageX, e.pageY);
+  } else {
+    hideMenus();
+  }
+});
+
+document.addEventListener('click', hideMenus);
+
+document.addEventListener('scroll', hideMenus, true);
+window.addEventListener('resize', hideMenus);
+</script>
+
+</body>
+</html>
